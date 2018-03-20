@@ -8,25 +8,24 @@ public class Author {
         MALE, FEMALE
     }
 
-    private String firstName, lastName;
+    private String name;
     private String email;
     private Gender gender;
 
-    public Author(String firstName, String lastName, String email, Gender gender) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Author(String name, String email, Gender gender) {
+        this.name = name;
         this.email = email;
         this.gender = gender;
     }
 
     public String getName() {
-        return firstName + " " + lastName;
+        return name;
     }
 
     @Override
     public String toString() {
         return "Author{" +
-                "name='" + firstName + " " + lastName + '\'' +
+                "name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", gender='" + gender + '\'' +
                 '}';
@@ -37,11 +36,11 @@ public class Author {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Author author = (Author) o;
-        return Objects.equals(firstName, author.firstName) && Objects.equals(lastName, author.lastName);
+        return Objects.equals(name, author.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName);
+        return Objects.hash(name);
     }
 }
