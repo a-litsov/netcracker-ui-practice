@@ -68,6 +68,7 @@ public class MainFrame extends JFrame {
     private JTabbedPane createTabbedPaneForBookOperations() {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Add book", createBookAddingTab());
+        tabbedPane.addTab("Edit/remove book", createBookEditingTab());
 
         return tabbedPane;
     }
@@ -75,25 +76,76 @@ public class MainFrame extends JFrame {
     private JPanel createBookAddingTab() {
         JPanel mainPanel = new JPanel(new BorderLayout());
 
+        // Book main info fields (such as name, price, count, etc.) without authors info
+        JTextField bookNameField = new JTextField(15);
+        JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1));
+        JSpinner bookPriceField = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01));
+        JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField);
+        mainPanel.add(mainInfoPanel, BorderLayout.NORTH);
+
+        // Authors info panel
+        List<List<JComponent>> authorsFields = new ArrayList<>();
+        JPanel authorsPanel = createAndPutAuthorsScrollPane(authorsFields, mainPanel);
+
+        // Buttons panel and actions for buttons
+        JPanel buttonsPanel = createButtonsPanelForAddingTab(bookNameField, booksCountField, bookPriceField, authorsPanel,
+                                                             authorsFields);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        return mainPanel;
+    }
+
+    private JPanel createBookEditingTab() {
+        JPanel tabMainPanel = new JPanel(new BorderLayout());
+
+        // Book searching and main info fields (such as name, price, count, etc.) without authors info
+        JPanel bookMainPanel = new JPanel(new GridLayout(0, 1));
+        JPanel bookSearchPanel = new JPanel();
+        bookSearchPanel.setBorder(BorderFactory.createTitledBorder("Book search"));
+        JTextField bookSearchField = new JTextField(40);
+        bookSearchPanel.add(bookSearchField);
+        bookMainPanel.add(bookSearchPanel);
+
+        JTextField bookNameField = new JTextField(15);
+        JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1));
+        JSpinner bookPriceField = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01));
+        JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField);
+        bookMainPanel.add(mainInfoPanel);
+        tabMainPanel.add(bookMainPanel, BorderLayout.NORTH);
+
+        // Authors info panel
+        List<List<JComponent>> authorsFields = new ArrayList<>();
+        JPanel authorsPanel = createAndPutAuthorsScrollPane(authorsFields, tabMainPanel);
+
+        // Buttons panel and actions for buttons: TO DO separate method for editing tab
+        JPanel buttonsPanel = createButtonsPanelForAddingTab(bookNameField, booksCountField, bookPriceField,
+                                                             authorsPanel, authorsFields);
+        tabMainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        return tabMainPanel;
+    }
+
+    private JPanel createBookMainInfoPanel(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField) {
         JPanel mainInfoPanel = new JPanel();
         mainInfoPanel.setBorder(BorderFactory.createTitledBorder("Main book info"));
 
-        JTextField bookName;
-        JSpinner booksCount, bookPrice;
-        mainInfoPanel.add(createPanel(new JLabel("Name:"), bookName = new JTextField(15)));
-        mainInfoPanel.add(createPanel(new JLabel("Count:"),
-                                      booksCount = new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1))));
-        mainInfoPanel.add(createPanel(new JLabel("Price:"),
-                                      bookPrice = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01)),
-                                      new JLabel("$")));
+        mainInfoPanel.add(createPanel(new JLabel("Name:"), bookNameField));
+        mainInfoPanel.add(createPanel(new JLabel("Count:"), booksCountField));
+        mainInfoPanel.add(createPanel(new JLabel("Price:"), bookPriceField, new JLabel("$")));
 
-        mainPanel.add(mainInfoPanel, BorderLayout.NORTH);
+        return mainInfoPanel;
+    }
 
+    /*
+     * Creates scroll pane for multiple authors (inside method only one 'starting' author panel added via
+     * createAuthorPanel() method) and locates it in the BorderLayout.CENTER of parentPanel.
+     * parentPanel must use BorderLayout; returned panel is component of created scroll pane where all author panels
+     * must be placed.
+     */
+    private JPanel createAndPutAuthorsScrollPane(List<List<JComponent>> authorsFields, JPanel parentPanel) {
         JPanel authorsPanel = new JPanel(new GridLayout(0, 1));
 
-        List<List<JComponent>> authorsFields = new ArrayList<>();
         authorsPanel.add(createAuthorPanel(authorsFields));
-
 
         JScrollPane authorsScrollPane = new JScrollPane(authorsPanel);
         Dimension authorsPanelMinSize = authorsPanel.getMinimumSize();
@@ -101,47 +153,9 @@ public class MainFrame extends JFrame {
         authorsScrollPane.setMinimumSize(authorsPanelMinSize);
         authorsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        mainPanel.add(authorsScrollPane, BorderLayout.CENTER);
+        parentPanel.add(authorsScrollPane, BorderLayout.CENTER);
 
-
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.add(createButton("Add book", (event) -> {
-            // TO DO
-            Author[] authors = new Author[authorsFields.size()];
-            for (int i = 0; i < authors.length; i++) {
-                List<JComponent> currentAuthorFields = authorsFields.get(i);
-                String name = ((JTextField) currentAuthorFields.get(0)).getText();
-                Author.Gender gender = (Author.Gender) ((JComboBox<Author.Gender>) currentAuthorFields.get(1)).getSelectedItem();
-                String email = ((JTextField) currentAuthorFields.get(2)).getText();
-
-                authors[i] = new Author(name, email, gender);
-            }
-
-            Book book = new Book(bookName.getText(), authors, ((double) bookPrice.getValue()), ((int) booksCount.getValue()));
-            bookModel.addBook(book);
-        }));
-        buttonsPanel.add(createButton("Add author", (event) -> {
-            authorsPanel.add(createAuthorPanel(authorsFields));
-            validate();
-        }));
-
-        buttonsPanel.add(createButton("Remove last author", (event) -> {
-            int authorsCount = authorsPanel.getComponentCount();
-            if (authorsCount > 1) {
-                authorsPanel.remove(authorsCount - 1);
-                authorsFields.remove(authorsCount - 1);
-            }
-            validate();
-        }));
-
-        buttonsPanel.add(createButton("Clear fields", (event) -> {
-            // TO DO
-
-            validate();
-        }));
-        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-
-        return mainPanel;
+        return authorsPanel;
     }
 
     /*
@@ -164,6 +178,70 @@ public class MainFrame extends JFrame {
         authorsFields.add(fields);
 
         return authorPanel;
+    }
+
+    private JPanel createButtonsPanelForAddingTab(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField,
+                                                  JPanel authorsPanel, List<List<JComponent>> authorsFields) {
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.add(createButton("Add book", (event) -> {
+            Author[] authors = parseAuthorsInfo(authorsFields);
+
+            Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
+                                 (int) booksCountField.getValue());
+            bookModel.addBook(book);
+        }));
+        buttonsPanel.add(createButton("Add author", (event) -> {
+            authorsPanel.add(createAuthorPanel(authorsFields));
+            validate();
+        }));
+        buttonsPanel.add(createButton("Remove last author", (event) -> {
+            removeLastAuthorPanelAndFields(authorsPanel, authorsFields);
+            validate();
+        }));
+        buttonsPanel.add(createButton("Clear fields",
+                                      (event) -> clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields)));
+
+        return buttonsPanel;
+    }
+
+    private Author[] parseAuthorsInfo(List<List<JComponent>> authorsFields) {
+        Author[] authors = new Author[authorsFields.size()];
+
+        for (int i = 0; i < authors.length; i++) {
+            List<JComponent> authorFields = authorsFields.get(i);
+            String name = ((JTextField) authorFields.get(0)).getText();
+            Author.Gender gender = (Author.Gender) ((JComboBox<Author.Gender>) authorFields.get(1)).getSelectedItem();
+            String email = ((JTextField) authorFields.get(2)).getText();
+
+            authors[i] = new Author(name, email, gender);
+        }
+
+        return authors;
+    }
+
+    private void clearAllFields(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField,
+                                List<List<JComponent>> authorsFields) {
+        final String defaultText = "";
+        final int defaultInt = 0;
+        final double defaultDouble = 0;
+
+        bookNameField.setText(defaultText);
+        booksCountField.setValue(defaultInt);
+        bookPriceField.setValue(defaultDouble);
+
+        for (List<JComponent> compsList : authorsFields) {
+            ((JTextField) compsList.get(0)).setText(defaultText);
+            ((JTextField) compsList.get(2)).setText(defaultText);
+            ((JComboBox) compsList.get(1)).setSelectedIndex(defaultInt);
+        }
+    }
+
+    private void removeLastAuthorPanelAndFields(JPanel authorsPanel, List<List<JComponent>> authorsFields) {
+        int authorsCount = authorsPanel.getComponentCount();
+        if (authorsCount > 1) {
+            authorsPanel.remove(authorsCount - 1);
+            authorsFields.remove(authorsCount - 1);
+        }
     }
 
     private JPanel createPanel(Component... comps) {
