@@ -3,15 +3,15 @@ package com.edu_netcracker.nn.adlitsov.ui.homework1;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFrame extends JFrame {
-    public static final int WIDTH = 550, HEIGHT = 500;
-    private JSplitPane splitPane;
-    private JTabbedPane tabbedPane;
-    private JScrollPane tablePane;
-    private BookModel bookModel;
-    private JTable bookTable;
+    public static final int WIDTH = 730, HEIGHT = 520;
+
+    private final BookModel bookModel = new BookModel();
 
     public MainFrame() {
         super("Book Storage");
@@ -28,12 +28,7 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         createMenuBar();
-        createTabbedPaneForBookOperations();
-        createBookTable();
-
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tabbedPane, tablePane);
-
-        add(splitPane);
+        createSplitPane();
 
         setVisible(true);
     }
@@ -61,59 +56,103 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    private void createSplitPane() {
+        JTabbedPane tabbedPane = createTabbedPaneForBookOperations();
+        JScrollPane tablePane = createBookTable();
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tabbedPane, tablePane);
+        splitPane.setOneTouchExpandable(true);
 
-    private void createBookTable() {
-        bookModel = new BookModel();
-        bookTable = new JTable(bookModel);
-        tablePane = new JScrollPane(bookTable);
-        tablePane.setPreferredSize(new Dimension(100, 100));
-
+        add(splitPane);
     }
 
-    private void createTabbedPaneForBookOperations() {
-        tabbedPane = new JTabbedPane();
+    private JTabbedPane createTabbedPaneForBookOperations() {
+        JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Add book", createBookAddingTab());
 
+        return tabbedPane;
     }
 
     private JPanel createBookAddingTab() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        JPanel subPanel = new JPanel();
-        subPanel.setLayout(new GridLayout(2, 1));
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         JPanel mainInfoPanel = new JPanel();
         mainInfoPanel.setBorder(BorderFactory.createTitledBorder("Main book info"));
 
-        mainInfoPanel.add(createPanel(new JLabel("Name:"), new JTextField(15)));
+        JTextField bookName;
+        JSpinner booksCount, bookPrice;
+        mainInfoPanel.add(createPanel(new JLabel("Name:"), bookName = new JTextField(15)));
         mainInfoPanel.add(createPanel(new JLabel("Count:"),
-                                      new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1))));
+                                      booksCount = new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1))));
         mainInfoPanel.add(createPanel(new JLabel("Price:"),
-                                      new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01)),
+                                      bookPrice = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01)),
                                       new JLabel("$")));
 
-        subPanel.add(mainInfoPanel, BorderLayout.CENTER);
+        mainPanel.add(mainInfoPanel, BorderLayout.NORTH);
+
+        JPanel authorsPanel = new JPanel(new GridLayout(0, 1));
+
+        List<List<JComponent>> authorsFields = new ArrayList<>();
+        authorsPanel.add(createAuthorPanel(authorsFields));
 
 
-        JPanel authorsPanel = new JPanel();
-        authorsPanel.setBorder(BorderFactory.createTitledBorder("Book authors info"));
-        authorsPanel.add(new JButton("+"));
-        authorsPanel.add(createPanel(new JLabel("Name:"), new JTextField(20)));
-        authorsPanel.add(createPanel(new JLabel("Gender:"), new JTextField(1)));
-        authorsPanel.add(createPanel(new JLabel("E-mail:"), new JTextField(15)));
+        JScrollPane authorsScrollPane = new JScrollPane(authorsPanel);
+        Dimension authorsPanelMinSize = authorsPanel.getMinimumSize();
+        authorsPanelMinSize.height += 5;
+        authorsScrollPane.setMinimumSize(authorsPanelMinSize);
+        authorsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        subPanel.add(authorsPanel, BorderLayout.CENTER);
-
-        mainPanel.add(subPanel, BorderLayout.CENTER);
+        mainPanel.add(authorsScrollPane, BorderLayout.CENTER);
 
 
         JPanel buttonsPanel = new JPanel();
-        buttonsPanel.add(new JButton("Add book"));
-        buttonsPanel.add(new JButton("Clear fields"));
+        buttonsPanel.add(createButton("Add book", (event) -> {
+            // TO DO
+            System.out.println(authorsFields);
+        }));
+        buttonsPanel.add(createButton("Add author", (event) -> {
+            authorsPanel.add(createAuthorPanel(authorsFields));
+            validate();
+        }));
+
+        buttonsPanel.add(createButton("Remove last author", (event) -> {
+            int authorsCount = authorsPanel.getComponentCount();
+            if (authorsCount > 1) {
+                authorsPanel.remove(authorsCount - 1);
+                authorsFields.remove(authorsCount - 1);
+            }
+            validate();
+        }));
+
+        buttonsPanel.add(createButton("Clear fields", (event) -> {
+            // TO DO
+
+            validate();
+        }));
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         return mainPanel;
+    }
+
+    /*
+     * Receives list and populates it with new author panel data fields
+     */
+    private JPanel createAuthorPanel(List<List<JComponent>> authorsFields) {
+        JPanel authorPanel = new JPanel();
+        authorPanel.setBorder(BorderFactory.createTitledBorder("Author info"));
+
+        JTextField name, email;
+        JComboBox<Author.Gender> gender;
+        authorPanel.add(createPanel(new JLabel("Name:"), name = new JTextField(20)));
+        authorPanel.add(createPanel(new JLabel("Gender:"), gender = new JComboBox<>(Author.Gender.values())));
+        authorPanel.add(createPanel(new JLabel("E-mail:"), email = new JTextField(15)));
+
+        List<JComponent> fields = new ArrayList<>();
+        fields.add(name);
+        fields.add(gender);
+        fields.add(email);
+        authorsFields.add(fields);
+
+        return authorPanel;
     }
 
     private JPanel createPanel(Component... comps) {
@@ -123,6 +162,19 @@ public class MainFrame extends JFrame {
         }
 
         return panel;
+    }
+
+    private JButton createButton(String title, ActionListener al) {
+        JButton btn = new JButton(title);
+        btn.addActionListener(al);
+
+        return btn;
+    }
+
+    private JScrollPane createBookTable() {
+        JTable bookTable = new JTable(bookModel);
+
+        return new JScrollPane(bookTable);
     }
 
     public static void main(String[] args) {
