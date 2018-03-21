@@ -1,15 +1,19 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
+import ca.odell.glazedlists.swing.AutoCompleteSupport;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrame extends JFrame {
     public static final int WIDTH = 730, HEIGHT = 520;
+    public static final String BOOK_INFO_PROTOTYPE = "Core Java, Volume 1: Fundamentals, Cay S. Horstmann";
 
     private final BookModel bookModel = new BookModel();
 
@@ -29,6 +33,7 @@ public class MainFrame extends JFrame {
 
         createMenuBar();
         createSplitPane();
+
 
         setVisible(true);
     }
@@ -100,10 +105,10 @@ public class MainFrame extends JFrame {
 
         // Book searching and main info fields (such as name, price, count, etc.) without authors info
         JPanel bookMainPanel = new JPanel(new GridLayout(0, 1));
-        JPanel bookSearchPanel = new JPanel();
-        bookSearchPanel.setBorder(BorderFactory.createTitledBorder("Book search"));
-        JTextField bookSearchField = new JTextField(40);
-        bookSearchPanel.add(bookSearchField);
+
+        JComboBox bookSearchBox = new JComboBox<>();
+        JPanel bookSearchPanel = createBookSearchPanelWithAutocomplete(bookSearchBox);
+        bookSearchPanel.add(bookSearchBox);
         bookMainPanel.add(bookSearchPanel);
 
         JTextField bookNameField = new JTextField(15);
@@ -121,6 +126,9 @@ public class MainFrame extends JFrame {
         JPanel buttonsPanel = createButtonsPanelForAddingTab(bookNameField, booksCountField, bookPriceField,
                                                              authorsPanel, authorsFields);
         tabMainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        // Action when book is selected
+        createBookSearchBoxListener(bookSearchBox, bookNameField, booksCountField, bookPriceField, authorsFields, authorsPanel);
 
         return tabMainPanel;
     }
@@ -260,11 +268,53 @@ public class MainFrame extends JFrame {
         return btn;
     }
 
+    private JPanel createBookSearchPanelWithAutocomplete(JComboBox bookSearchBox) {
+        JPanel bookSearchPanel = new JPanel();
+        bookSearchPanel.setBorder(BorderFactory.createTitledBorder("Book search"));
+
+        bookSearchBox.setPrototypeDisplayValue(BOOK_INFO_PROTOTYPE);
+        AutoCompleteSupport.install(bookSearchBox, bookModel.getBooks());
+        bookSearchPanel.add(createPanel(new JLabel("Start typing book title:"), bookSearchBox));
+
+        bookSearchPanel.add(bookSearchBox);
+        return bookSearchPanel;
+    }
+
+    private void createBookSearchBoxListener(JComboBox<Book> bookSearchBox, JTextField bookNameField, JSpinner booksCountField,
+                                             JSpinner bookPriceField, List<List<JComponent>> authorsFields, JPanel authorsPanel) {
+        bookSearchBox.addItemListener((event) -> {
+            if (event.getStateChange() != ItemEvent.SELECTED) {
+                return;
+            }
+            Book selectedBook = (Book) bookSearchBox.getSelectedItem();
+            bookNameField.setText(selectedBook.getName());
+            bookPriceField.setValue(selectedBook.getPrice());
+
+            Author[] authors = selectedBook.getAuthors();
+            for (int i = 0; i < authors.length; i++) {
+                if (i >= authorsFields.size()) {
+                    authorsPanel.add(createAuthorPanel(authorsFields));
+                }
+                List<JComponent> curAuthorField = authorsFields.get(i);
+                ((JTextField) curAuthorField.get(0)).setText(authors[i].getName());
+                ((JComboBox<Author.Gender>) curAuthorField.get(1)).setSelectedItem(authors[i].getGender());
+                ((JTextField) curAuthorField.get(2)).setText(authors[i].getEmail());
+            }
+
+            int unusedAuthorFields = authorsFields.size() - authors.length;
+            for (int i = 0; i < unusedAuthorFields; i++) {
+                removeLastAuthorPanelAndFields(authorsPanel, authorsFields);
+            }
+            validate();
+        });
+    }
+
     private JScrollPane createBookTable() {
         JTable bookTable = new JTable(bookModel);
 
         return new JScrollPane(bookTable);
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MainFrame::new);
