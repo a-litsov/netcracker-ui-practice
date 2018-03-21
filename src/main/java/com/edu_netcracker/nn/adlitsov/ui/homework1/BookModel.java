@@ -30,7 +30,7 @@ public class BookModel extends AbstractTableModel {
             case 0:
                 return cur.getName();
             case 1:
-                return cur.getAuthor().toString();
+                return cur.getAuthorNames();
             case 2:
                 return cur.getPrice();
             case 3:
@@ -44,7 +44,7 @@ public class BookModel extends AbstractTableModel {
             case 0:
                 return "Book name";
             case 1:
-                return "Author";
+                return "Authors";
             case 2:
                 return "Price";
             case 3:
