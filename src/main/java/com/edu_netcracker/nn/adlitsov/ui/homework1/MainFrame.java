@@ -107,7 +107,18 @@ public class MainFrame extends JFrame {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(createButton("Add book", (event) -> {
             // TO DO
-            System.out.println(authorsFields);
+            Author[] authors = new Author[authorsFields.size()];
+            for (int i = 0; i < authors.length; i++) {
+                List<JComponent> currentAuthorFields = authorsFields.get(i);
+                String name = ((JTextField) currentAuthorFields.get(0)).getText();
+                Author.Gender gender = (Author.Gender) ((JComboBox<Author.Gender>) currentAuthorFields.get(1)).getSelectedItem();
+                String email = ((JTextField) currentAuthorFields.get(2)).getText();
+
+                authors[i] = new Author(name, email, gender);
+            }
+
+            Book book = new Book(bookName.getText(), authors, ((double) bookPrice.getValue()), ((int) booksCount.getValue()));
+            bookModel.addBook(book);
         }));
         buttonsPanel.add(createButton("Add author", (event) -> {
             authorsPanel.add(createAuthorPanel(authorsFields));
