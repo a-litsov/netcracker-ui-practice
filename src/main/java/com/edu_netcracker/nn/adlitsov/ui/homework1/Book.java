@@ -1,7 +1,6 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
 import java.util.Arrays;
-import java.util.Random;
 
 public class Book {
     private String name;
@@ -80,13 +79,7 @@ public class Book {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Book[name=" + name + ", authors={");
-        for (int i = 0; i < authors.length; i++) {
-            sb.append(authors[i]).append((i < authors.length - 1) ? ", " : "}");
-        }
-        sb.append(", price=" + price + ", qty=" + qty + "]");
-
-        return sb.toString();
+        return name + ", " + getAuthorNames();
     }
 
     public String getAuthorNames() {
@@ -95,21 +88,5 @@ public class Book {
             sb.append(authors[i].getName()).append((i < authors.length - 1) ? ", " : "");
         }
         return sb.toString();
-    }
-
-
-    public static void main(String[] args) {
-        Random rnd = new Random();
-        Author[] authors = {
-                new Author("Kay Horstmann", "horstmann@gmail.com", Author.Gender.MALE),
-                new Author("Steve McConnell", "mcconnell@gmail.com", Author.Gender.MALE),
-                new Author("Bruce Eckel", "eckel@gmail.com", Author.Gender.MALE)
-        };
-        final int price = 200;
-        final int qty = rnd.nextInt(Integer.MAX_VALUE);
-
-        Book book = new Book("New Super Book", authors, price, qty);
-        System.out.println(book);
-        System.out.println(book.getAuthorNames());
     }
 }
