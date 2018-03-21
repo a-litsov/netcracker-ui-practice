@@ -1,16 +1,22 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.List;
 
 public class BookModel extends AbstractTableModel {
 
-    private List<Book> books = new ArrayList<>();
+    private EventList<Book> books = new BasicEventList<>();
 
     public void addBook(Book b) {
         books.add(b);
         fireTableDataChanged();
+    }
+
+
+    public EventList<Book> getBooks() {
+        return books;
     }
 
     @Override
