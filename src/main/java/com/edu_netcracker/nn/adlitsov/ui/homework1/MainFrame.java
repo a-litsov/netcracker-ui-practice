@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
         // Book searching and main info fields (such as name, price, count, etc.) without authors info
         JPanel bookMainPanel = new JPanel(new GridLayout(0, 1));
 
-        JComboBox bookSearchBox = new JComboBox<>();
+        JComboBox<Book> bookSearchBox = new JComboBox<>();
         JPanel bookSearchPanel = createBookSearchPanelWithAutocomplete(bookSearchBox);
         bookSearchPanel.add(bookSearchBox);
         bookMainPanel.add(bookSearchPanel);
@@ -123,8 +123,8 @@ public class MainFrame extends JFrame {
         JPanel authorsPanel = createAndPutAuthorsScrollPane(authorsFields, tabMainPanel);
 
         // Buttons panel and actions for buttons: TO DO separate method for editing tab
-        JPanel buttonsPanel = createButtonsPanelForAddingTab(bookNameField, booksCountField, bookPriceField,
-                                                             authorsPanel, authorsFields);
+        JPanel buttonsPanel = createButtonsPanelForEditingTab(bookSearchBox, bookNameField, booksCountField,
+                                                              bookPriceField, authorsPanel, authorsFields);
         tabMainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         // Action when book is selected
@@ -212,6 +212,43 @@ public class MainFrame extends JFrame {
         return buttonsPanel;
     }
 
+    private JPanel createButtonsPanelForEditingTab(JComboBox<Book> bookSearchBox, JTextField bookNameField, JSpinner booksCountField,
+                                                   JSpinner bookPriceField, JPanel authorsPanel, List<List<JComponent>> authorsFields) {
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.add(createButton("Apply changes", (event) -> {
+            int selectedIndex = bookSearchBox.getSelectedIndex();
+            if (selectedIndex == -1) {
+                return;
+            }
+
+            Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
+            selectedBook.setName(bookNameField.getText());
+            selectedBook.setPrice((double) bookPriceField.getValue());
+            selectedBook.setQty((int) booksCountField.getValue());
+            selectedBook.setAuthors(parseAuthorsInfo(authorsFields));
+
+            bookModel.dataChanged();
+        }));
+
+        buttonsPanel.add(createButton("Remove books", (event) -> {
+            int selectedIndex = bookSearchBox.getSelectedIndex();
+            if (selectedIndex == -1) {
+                return;
+            }
+
+            Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
+            int removeQty = (int) booksCountField.getValue();
+            bookModel.removeBooks(selectedIndex, removeQty);
+        }));
+
+        buttonsPanel.add(createButton("Clear fields", (event) -> {
+            clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields);
+            bookSearchBox.setSelectedIndex(-1);
+        }));
+
+        return buttonsPanel;
+    }
+
     private Author[] parseAuthorsInfo(List<List<JComponent>> authorsFields) {
         Author[] authors = new Author[authorsFields.size()];
 
@@ -286,8 +323,14 @@ public class MainFrame extends JFrame {
             if (event.getStateChange() != ItemEvent.SELECTED) {
                 return;
             }
-            Book selectedBook = (Book) bookSearchBox.getSelectedItem();
+
+            int selectedIndex = bookSearchBox.getSelectedIndex();
+            if (selectedIndex == -1) {
+                return;
+            }
+            Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
             bookNameField.setText(selectedBook.getName());
+            booksCountField.setValue(selectedBook.getQty());
             bookPriceField.setValue(selectedBook.getPrice());
 
             Author[] authors = selectedBook.getAuthors();
