@@ -131,7 +131,8 @@ public class MainFrame extends JFrame {
         tabMainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         // Action when book is selected
-        createBookSearchBoxListener(bookSearchBox, bookNameField, booksCountField, bookPriceField, authorsFields, authorsPanel);
+        createBookSearchBoxListener(bookSearchBox, bookNameField, booksCountField, bookPriceField, authorsFields, authorsPanel,
+                                    bookDatePicker);
 
         return tabMainPanel;
     }
@@ -200,7 +201,7 @@ public class MainFrame extends JFrame {
             Author[] authors = parseAuthorsInfo(authorsFields);
 
             Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
-                                 (int) booksCountField.getValue());
+                                 (int) booksCountField.getValue(), bookDatePicker.getDate());
             bookModel.addBook(book);
         }));
 
@@ -236,6 +237,7 @@ public class MainFrame extends JFrame {
             selectedBook.setPrice((double) bookPriceField.getValue());
             selectedBook.setQty((int) booksCountField.getValue());
             selectedBook.setAuthors(parseAuthorsInfo(authorsFields));
+            selectedBook.setDate(bookDatePicker.getDate());
 
             bookModel.dataChanged();
         }));
@@ -339,7 +341,8 @@ public class MainFrame extends JFrame {
     }
 
     private void createBookSearchBoxListener(JComboBox<Book> bookSearchBox, JTextField bookNameField, JSpinner booksCountField,
-                                             JSpinner bookPriceField, List<List<JComponent>> authorsFields, JPanel authorsPanel) {
+                                             JSpinner bookPriceField, List<List<JComponent>> authorsFields, JPanel authorsPanel,
+                                             DatePicker bookDatePicker) {
         bookSearchBox.addItemListener((event) -> {
             if (event.getStateChange() != ItemEvent.SELECTED) {
                 return;
@@ -353,6 +356,7 @@ public class MainFrame extends JFrame {
             bookNameField.setText(selectedBook.getName());
             booksCountField.setValue(selectedBook.getQty());
             bookPriceField.setValue(selectedBook.getPrice());
+            bookDatePicker.setDate(selectedBook.getDate());
 
             Author[] authors = selectedBook.getAuthors();
             for (int i = 0; i < authors.length; i++) {
