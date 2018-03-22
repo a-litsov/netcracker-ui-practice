@@ -1,6 +1,7 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Book {
     private String name;
@@ -55,8 +56,18 @@ public class Book {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Author[] getAuthors() {
         return Arrays.copyOf(authors, authors.length);
+    }
+
+    public void setAuthors(Author[] authors) {
+        validateAuthors(authors);
+
+        this.authors = Arrays.copyOf(authors, authors.length);
     }
 
     public double getPrice() {
@@ -75,6 +86,24 @@ public class Book {
     public void setQty(int qty) {
         validateQty(qty);
         this.qty = qty;
+    }
+
+    @Override
+    public boolean equals(Object anotherObj) {
+        if (anotherObj == this) {
+            return true;
+        }
+
+        if (anotherObj == null) {
+            return false;
+        }
+
+        if (getClass() != anotherObj.getClass()) {
+            return false;
+        }
+
+        Book other = (Book) anotherObj;
+        return Objects.equals(name, other.name) && Arrays.equals(authors, other.authors) && price == other.price;
     }
 
     @Override
