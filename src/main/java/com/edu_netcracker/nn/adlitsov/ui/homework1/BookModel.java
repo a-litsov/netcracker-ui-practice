@@ -14,9 +14,25 @@ public class BookModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    public void dataChanged() {
+        fireTableDataChanged();
+    }
 
     public EventList<Book> getBooks() {
         return books;
+    }
+
+    public void removeBooks(int bookIndex, int removeQty) {
+        Book book = books.get(bookIndex);
+
+        int currentQty = book.getQty();
+        if (currentQty == removeQty) {
+            books.remove(book);
+        } else {
+            book.setQty(currentQty - removeQty);
+        }
+
+        fireTableDataChanged();
     }
 
     @Override
