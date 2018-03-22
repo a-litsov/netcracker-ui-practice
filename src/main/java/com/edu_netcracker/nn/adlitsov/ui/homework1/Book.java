@@ -1,5 +1,6 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -7,9 +8,11 @@ public class Book {
     private String name;
     private Author[] authors;
     private double price;
-    private int qty;
+    private int qty = 1;
+    private LocalDate date;
 
     public Book(String name, Author[] authors, double price) {
+
         if (name == null) {
             throw new IllegalArgumentException("Book must have a name");
         }
@@ -26,6 +29,12 @@ public class Book {
 
         validateQty(qty);
         this.qty = qty;
+    }
+
+    public Book(String name, Author[] authors, double price, int qty, LocalDate date) {
+        this(name, authors, price, qty);
+
+        this.date = date;
     }
 
     private void validateAuthors(Author[] authors) {
@@ -88,6 +97,14 @@ public class Book {
         this.qty = qty;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
     @Override
     public boolean equals(Object anotherObj) {
         if (anotherObj == this) {
@@ -103,12 +120,18 @@ public class Book {
         }
 
         Book other = (Book) anotherObj;
-        return Objects.equals(name, other.name) && Arrays.equals(authors, other.authors) && price == other.price;
+        return Objects.equals(name, other.name) && Arrays.equals(authors, other.authors) && price == other.price
+                && Objects.equals(date, other.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, price, date) + Arrays.hashCode(authors);
     }
 
     @Override
     public String toString() {
-        return name + ", " + getAuthorNames();
+        return name + ", " + getAuthorNames() + ((date != null) ? ", " + date.getYear() : "");
     }
 
     public String getAuthorNames() {
