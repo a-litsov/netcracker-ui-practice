@@ -13,6 +13,7 @@
     <java.version>1.8</java.version>
     <junit.version>4.12</junit.version>
       <glazedlists.version>1.11.0</glazedlists.version>
+    <lgooddatepicker.version>10.3.1</lgooddatepicker.version>
   </properties>
 
   <build>
@@ -41,5 +42,11 @@
           <version>${glazedlists.version}</version>
           <scope>compile</scope>
       </dependency>
+    <dependency>
+      <groupId>com.github.lgooddatepicker</groupId>
+      <artifactId>LGoodDatePicker</artifactId>
+      <version>${lgooddatepicker.version}</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>
