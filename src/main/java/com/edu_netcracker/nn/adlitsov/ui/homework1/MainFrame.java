@@ -1,6 +1,7 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
+import com.github.lgooddatepicker.components.DatePicker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrame extends JFrame {
-    public static final int WIDTH = 730, HEIGHT = 520;
+    public static final int WIDTH = 800, HEIGHT = 520;
     public static final String BOOK_INFO_PROTOTYPE = "Core Java, Volume 1: Fundamentals, Cay S. Horstmann";
 
     private final BookModel bookModel = new BookModel();
@@ -83,9 +84,10 @@ public class MainFrame extends JFrame {
 
         // Book main info fields (such as name, price, count, etc.) without authors info
         JTextField bookNameField = new JTextField(15);
-        JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1));
+        JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(1, 1, 10_000, 1));
         JSpinner bookPriceField = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01));
-        JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField);
+        DatePicker bookDatePicker = new DatePicker();
+        JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField, bookDatePicker);
         mainPanel.add(mainInfoPanel, BorderLayout.NORTH);
 
         // Authors info panel
@@ -94,7 +96,7 @@ public class MainFrame extends JFrame {
 
         // Buttons panel and actions for buttons
         JPanel buttonsPanel = createButtonsPanelForAddingTab(bookNameField, booksCountField, bookPriceField, authorsPanel,
-                                                             authorsFields);
+                                                             authorsFields, bookDatePicker);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         return mainPanel;
@@ -112,9 +114,10 @@ public class MainFrame extends JFrame {
         bookMainPanel.add(bookSearchPanel);
 
         JTextField bookNameField = new JTextField(15);
-        JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(0, 0, 10_000, 1));
+        JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(1, 1, 10_000, 1));
         JSpinner bookPriceField = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01));
-        JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField);
+        DatePicker bookDatePicker = new DatePicker();
+        JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField, bookDatePicker);
         bookMainPanel.add(mainInfoPanel);
         tabMainPanel.add(bookMainPanel, BorderLayout.NORTH);
 
@@ -124,7 +127,7 @@ public class MainFrame extends JFrame {
 
         // Buttons panel and actions for buttons: TO DO separate method for editing tab
         JPanel buttonsPanel = createButtonsPanelForEditingTab(bookSearchBox, bookNameField, booksCountField,
-                                                              bookPriceField, authorsPanel, authorsFields);
+                                                              bookPriceField, authorsPanel, authorsFields, bookDatePicker);
         tabMainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         // Action when book is selected
@@ -133,13 +136,15 @@ public class MainFrame extends JFrame {
         return tabMainPanel;
     }
 
-    private JPanel createBookMainInfoPanel(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField) {
+    private JPanel createBookMainInfoPanel(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField,
+                                           DatePicker bookDatePicker) {
         JPanel mainInfoPanel = new JPanel();
         mainInfoPanel.setBorder(BorderFactory.createTitledBorder("Main book info"));
 
         mainInfoPanel.add(createPanel(new JLabel("Name:"), bookNameField));
         mainInfoPanel.add(createPanel(new JLabel("Count:"), booksCountField));
         mainInfoPanel.add(createPanel(new JLabel("Price:"), bookPriceField, new JLabel("$")));
+        mainInfoPanel.add(createPanel(new JLabel("Date:"), bookDatePicker));
 
         return mainInfoPanel;
     }
@@ -189,7 +194,7 @@ public class MainFrame extends JFrame {
     }
 
     private JPanel createButtonsPanelForAddingTab(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField,
-                                                  JPanel authorsPanel, List<List<JComponent>> authorsFields) {
+                                                  JPanel authorsPanel, List<List<JComponent>> authorsFields, DatePicker bookDatePicker) {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(createButton("Add book", (event) -> {
             Author[] authors = parseAuthorsInfo(authorsFields);
@@ -198,22 +203,27 @@ public class MainFrame extends JFrame {
                                  (int) booksCountField.getValue());
             bookModel.addBook(book);
         }));
+
         buttonsPanel.add(createButton("Add author", (event) -> {
             authorsPanel.add(createAuthorPanel(authorsFields));
             validate();
         }));
+
         buttonsPanel.add(createButton("Remove last author", (event) -> {
             removeLastAuthorPanelAndFields(authorsPanel, authorsFields);
             validate();
         }));
+
         buttonsPanel.add(createButton("Clear fields",
-                                      (event) -> clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields)));
+                                      (event) -> clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields,
+                                                                bookDatePicker)));
 
         return buttonsPanel;
     }
 
     private JPanel createButtonsPanelForEditingTab(JComboBox<Book> bookSearchBox, JTextField bookNameField, JSpinner booksCountField,
-                                                   JSpinner bookPriceField, JPanel authorsPanel, List<List<JComponent>> authorsFields) {
+                                                   JSpinner bookPriceField, JPanel authorsPanel, List<List<JComponent>> authorsFields,
+                                                   DatePicker bookDatePicker) {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(createButton("Apply changes", (event) -> {
             int selectedIndex = bookSearchBox.getSelectedIndex();
@@ -230,6 +240,16 @@ public class MainFrame extends JFrame {
             bookModel.dataChanged();
         }));
 
+        buttonsPanel.add(createButton("Add author", (event) -> {
+            authorsPanel.add(createAuthorPanel(authorsFields));
+            validate();
+        }));
+
+        buttonsPanel.add(createButton("Remove last author", (event) -> {
+            removeLastAuthorPanelAndFields(authorsPanel, authorsFields);
+            validate();
+        }));
+
         buttonsPanel.add(createButton("Remove books", (event) -> {
             int selectedIndex = bookSearchBox.getSelectedIndex();
             if (selectedIndex == -1) {
@@ -242,7 +262,7 @@ public class MainFrame extends JFrame {
         }));
 
         buttonsPanel.add(createButton("Clear fields", (event) -> {
-            clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields);
+            clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields, bookDatePicker);
             bookSearchBox.setSelectedIndex(-1);
         }));
 
@@ -265,19 +285,20 @@ public class MainFrame extends JFrame {
     }
 
     private void clearAllFields(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField,
-                                List<List<JComponent>> authorsFields) {
+                                List<List<JComponent>> authorsFields, DatePicker bookDatePicker) {
         final String defaultText = "";
-        final int defaultInt = 0;
-        final double defaultDouble = 0;
+        final int defaultCount = 1;
+        final double defaultPrice = 0;
 
         bookNameField.setText(defaultText);
-        booksCountField.setValue(defaultInt);
-        bookPriceField.setValue(defaultDouble);
+        booksCountField.setValue(defaultCount);
+        bookPriceField.setValue(defaultPrice);
+        bookDatePicker.clear();
 
         for (List<JComponent> compsList : authorsFields) {
             ((JTextField) compsList.get(0)).setText(defaultText);
             ((JTextField) compsList.get(2)).setText(defaultText);
-            ((JComboBox) compsList.get(1)).setSelectedIndex(defaultInt);
+            ((JComboBox) compsList.get(1)).setSelectedItem(Author.Gender.MALE);
         }
     }
 
