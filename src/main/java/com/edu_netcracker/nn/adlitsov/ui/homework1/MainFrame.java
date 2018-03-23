@@ -69,12 +69,10 @@ public class MainFrame extends JFrame {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
 
-                bookModel.loadBooks(file);
-                System.out.println("Saving: " + file.getName());
-            } else {
-                System.out.println("Save command cancelled by user.");
+                if (!bookModel.loadBooks(file)) {
+                    JOptionPane.showMessageDialog(this, "Error occurred while books loading!");
+                }
             }
-
         });
 
         fileMenu.add(openMenuItem);
@@ -97,11 +95,7 @@ public class MainFrame extends JFrame {
                 File file = new File(fileNameWithOutExt + "." + filter.getExtensions()[0]);
 
                 bookModel.saveBooks(file);
-                System.out.println("Saving: " + file.getName());
-            } else {
-                System.out.println("Save command cancelled by user.");
             }
-
         });
 
         fileMenu.add(saveMenuItem);
@@ -257,15 +251,19 @@ public class MainFrame extends JFrame {
 
         JButton addBookButton = new JButton("Add book");
         addBookButton.addActionListener(event -> {
-            if (!addBookButton.requestFocusInWindow()) {
-                return;
-            }
-            Author[] authors = parseAuthorsInfo(authorsFields);
+            try {
+                Author[] authors = parseAuthorsInfo(authorsFields);
 
-            Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
-                                 (int) booksCountField.getValue(), bookDatePicker.getDate());
-            bookModel.addBook(book);
+                Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
+                                     (int) booksCountField.getValue(), bookDatePicker.getDate());
+                bookModel.addBook(book);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Incorrect book data!");
+            }
+
         });
+        buttonsPanel.add(addBookButton);
 
         buttonsPanel.add(createButton("Add author", event -> {
             authorsPanel.add(createAuthorPanel(authorsFields));
@@ -291,23 +289,26 @@ public class MainFrame extends JFrame {
 
         JButton applyButton = new JButton("Apply changes");
         applyButton.addActionListener(event -> {
-            if (!applyButton.requestFocusInWindow()) {
-                return;
-            }
-            int selectedIndex = bookSearchBox.getSelectedIndex();
-            if (selectedIndex == -1) {
-                return;
-            }
+            try {
+                int selectedIndex = bookSearchBox.getSelectedIndex();
+                if (selectedIndex == -1) {
+                    return;
+                }
 
-            Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
-            selectedBook.setName(bookNameField.getText());
-            selectedBook.setPrice((double) bookPriceField.getValue());
-            selectedBook.setQty((int) booksCountField.getValue());
-            selectedBook.setAuthors(parseAuthorsInfo(authorsFields));
-            selectedBook.setDate(bookDatePicker.getDate());
+                Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
+                selectedBook.setName(bookNameField.getText());
+                selectedBook.setPrice((double) bookPriceField.getValue());
+                selectedBook.setQty((int) booksCountField.getValue());
+                selectedBook.setAuthors(parseAuthorsInfo(authorsFields));
+                selectedBook.setDate(bookDatePicker.getDate());
 
-            bookModel.dataChanged();
+                bookModel.dataChanged();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Incorrect book data!");
+            }
         });
+        buttonsPanel.add(applyButton);
 
         buttonsPanel.add(createButton("Add author", (event) -> {
             authorsPanel.add(createAuthorPanel(authorsFields));
