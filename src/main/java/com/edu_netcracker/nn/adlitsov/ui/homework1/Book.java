@@ -47,7 +47,7 @@ public class Book {
     }
 
     public static boolean isNameValid(String name) {
-        return name.toLowerCase().matches("^[a-zа-я0-9().,?!;:/'\"-+=]+$");
+        return name.toLowerCase().matches("^[a-zа-я0-9().,?!;:/'\"-+= ]+$");
     }
 
     private void validateAuthors(Author[] authors) {
