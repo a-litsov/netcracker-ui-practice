@@ -12,6 +12,10 @@ public class Author {
     private String email;
     private Gender gender;
 
+    public Author() {
+
+    }
+
     public Author(String name, String email, Gender gender) {
         this.name = name;
         this.email = email;
