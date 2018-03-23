@@ -18,10 +18,7 @@ public class Book {
     }
 
     public Book(String name, Author[] authors, double price) {
-
-        if (name == null) {
-            throw new IllegalArgumentException("Book must have a name");
-        }
+        validateName(name);
         validateAuthors(authors);
         validatePrice(price);
 
@@ -41,6 +38,16 @@ public class Book {
         this(name, authors, price, qty);
 
         this.date = date;
+    }
+
+    private void validateName(String name) {
+        if (name == null || !isNameValid(name)) {
+            throw new IllegalArgumentException("Incorrect name!");
+        }
+    }
+
+    public static boolean isNameValid(String name) {
+        return name.toLowerCase().matches("^[a-zа-я0-9().,?!;:/'\"-+=]+$");
     }
 
     private void validateAuthors(Author[] authors) {
