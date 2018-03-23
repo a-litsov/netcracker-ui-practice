@@ -44,8 +44,10 @@ public class BookModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public void loadBooks(File file) {
+    public boolean loadBooks(File file) {
         try {
+            books.clear();
+
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -55,8 +57,13 @@ public class BookModel extends AbstractTableModel {
             reader.forType(new TypeReference<BasicEventList<Book>>() {
             }).readValue(file);
             dataChanged();
+
+            return true;
         } catch (Exception ex) {
+            books.clear();
             ex.printStackTrace();
+
+            return false;
         }
     }
 
