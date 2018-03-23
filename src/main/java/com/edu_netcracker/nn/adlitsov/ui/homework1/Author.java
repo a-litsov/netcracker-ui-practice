@@ -1,5 +1,8 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Author {
@@ -16,11 +19,36 @@ public class Author {
 
     }
 
-    public Author(String name, String email, Gender gender) {
+    @JsonCreator
+    public Author(@JsonProperty("name") String name, @JsonProperty("email") String email, @JsonProperty("gender") Gender gender) {
+        validateName(name);
+        validateEmail(email);
+
         this.name = name;
         this.email = email;
         this.gender = gender;
     }
+
+    private void validateName(String name) {
+        if (name == null || !isNameValid(name)) {
+            throw new IllegalArgumentException("Incorrect name!");
+        }
+    }
+
+    public static boolean isNameValid(String name) {
+        return name.toLowerCase().matches("^(?:[a-zа-я]+(?: |\\. ?)?)+[a-zа-я]$");
+    }
+
+    private void validateEmail(String email) {
+        if (email == null || !isNameValid(email)) {
+            throw new IllegalArgumentException("Incorrect name!");
+        }
+    }
+
+    public static boolean isEmailValid(String email) {
+        return email.toLowerCase().matches("^[a-z0-9._%-]+@[a-z0-9.-]+\\.[a-z]{2,6}$");
+    }
+
 
     public String getName() {
         return name;
