@@ -2,8 +2,14 @@ package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import javax.swing.table.AbstractTableModel;
+import java.io.File;
 
 public class BookModel extends AbstractTableModel {
 
@@ -33,6 +39,34 @@ public class BookModel extends AbstractTableModel {
         }
 
         fireTableDataChanged();
+    }
+
+    public void loadBooks(File file) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            // This code only updates books list without creating new (it's needed for combobox with autocompletion)
+            ObjectReader reader = mapper.readerForUpdating(books);
+            reader.forType(new TypeReference<BasicEventList<Book>>() {
+            }).readValue(file);
+            dataChanged();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void saveBooks(File file) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            mapper.writeValue(file, books);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
