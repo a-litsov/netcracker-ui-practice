@@ -10,13 +10,19 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import javax.swing.table.AbstractTableModel;
 import java.io.File;
+import java.time.LocalDate;
 
 public class BookModel extends AbstractTableModel {
-
     private EventList<Book> books = new BasicEventList<>();
+
 
     public void addBook(Book b) {
         books.add(b);
+        fireTableDataChanged();
+    }
+
+    public void removeBook(Book b) {
+        books.remove(b);
         fireTableDataChanged();
     }
 
@@ -26,22 +32,6 @@ public class BookModel extends AbstractTableModel {
 
     public EventList<Book> getBooks() {
         return books;
-    }
-
-    public void removeBooks(int bookIndex, int removeQty) {
-        Book book = books.get(bookIndex);
-
-        int currentQty = book.getQty();
-        if (currentQty < removeQty) {
-            return;
-        }
-        if (currentQty == removeQty) {
-            books.remove(book);
-        } else {
-            book.setQty(currentQty - removeQty);
-        }
-
-        fireTableDataChanged();
     }
 
     public boolean loadBooks(File file) {
@@ -86,7 +76,7 @@ public class BookModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 5;
     }
 
     @Override
@@ -101,6 +91,8 @@ public class BookModel extends AbstractTableModel {
                 return cur.getPrice();
             case 3:
                 return cur.getQty();
+            case 4:
+                return cur.getDate();
         }
         return null;
     }
@@ -115,6 +107,8 @@ public class BookModel extends AbstractTableModel {
                 return "Price";
             case 3:
                 return "Count";
+            case 4:
+                return "Date";
         }
         return "";
     }
@@ -129,6 +123,8 @@ public class BookModel extends AbstractTableModel {
                 return Double.class;
             case 3:
                 return Integer.class;
+            case 4:
+                return LocalDate.class;
         }
         return Object.class;
     }
