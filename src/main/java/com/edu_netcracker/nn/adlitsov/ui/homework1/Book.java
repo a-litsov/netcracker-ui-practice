@@ -69,8 +69,14 @@ public class Book {
     }
 
     private void validateQty(int qty) {
-        if (qty < 0) {
+        if (qty <= 0) {
             throw new IllegalArgumentException("Qty must be non-negative integral number");
+        }
+    }
+
+    private void validateDate(LocalDate date) {
+        if (date.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Book must be written already!");
         }
     }
 
@@ -115,6 +121,7 @@ public class Book {
     }
 
     public void setDate(LocalDate date) {
+        validateDate(date);
         this.date = date;
     }
 
