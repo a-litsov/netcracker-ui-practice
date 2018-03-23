@@ -1,5 +1,7 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
@@ -10,6 +12,10 @@ public class Book {
     private double price;
     private int qty = 1;
     private LocalDate date;
+
+    public Book() {
+
+    }
 
     public Book(String name, Author[] authors, double price) {
 
@@ -134,6 +140,7 @@ public class Book {
         return name + ", " + getAuthorNames() + ((date != null) ? ", " + date.getYear() : "");
     }
 
+    @JsonIgnore
     public String getAuthorNames() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < authors.length; i++) {
