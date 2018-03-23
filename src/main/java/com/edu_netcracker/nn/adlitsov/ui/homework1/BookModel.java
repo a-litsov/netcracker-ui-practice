@@ -32,6 +32,9 @@ public class BookModel extends AbstractTableModel {
         Book book = books.get(bookIndex);
 
         int currentQty = book.getQty();
+        if (currentQty < removeQty) {
+            return;
+        }
         if (currentQty == removeQty) {
             books.remove(book);
         } else {
