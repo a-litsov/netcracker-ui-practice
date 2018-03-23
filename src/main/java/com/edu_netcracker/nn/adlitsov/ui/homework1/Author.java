@@ -40,8 +40,9 @@ public class Author {
     }
 
     private void validateEmail(String email) {
-        if (email == null || !isNameValid(email)) {
-            throw new IllegalArgumentException("Incorrect name!");
+        if (email == null || !isEmailValid(email)) {
+            System.out.println(email);
+            throw new IllegalArgumentException("Incorrect email!");
         }
     }
 
