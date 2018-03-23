@@ -2,6 +2,7 @@ package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -11,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,9 +132,10 @@ public class MainFrame extends JFrame {
 
         // Book main info fields (such as name, price, count, etc.) without authors info
         JTextField bookNameField = new JTextField(15);
+        bookNameField.setInputVerifier(new InputVerifiers.BookNameVerifier());
         JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(1, 1, 10_000, 1));
         JSpinner bookPriceField = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01));
-        DatePicker bookDatePicker = new DatePicker();
+        DatePicker bookDatePicker = createAndSetUpDatePicker();
         JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField, bookDatePicker);
         mainPanel.add(mainInfoPanel, BorderLayout.NORTH);
 
@@ -153,16 +156,17 @@ public class MainFrame extends JFrame {
 
         // Book searching and main info fields (such as name, price, count, etc.) without authors info
         JPanel bookMainPanel = new JPanel(new GridLayout(0, 1));
-
         JComboBox<Book> bookSearchBox = new JComboBox<>();
         JPanel bookSearchPanel = createBookSearchPanelWithAutocomplete(bookSearchBox);
         bookSearchPanel.add(bookSearchBox);
         bookMainPanel.add(bookSearchPanel);
 
         JTextField bookNameField = new JTextField(15);
+        bookNameField.setInputVerifier(new InputVerifiers.BookNameVerifier());
         JSpinner booksCountField = new JSpinner(new SpinnerNumberModel(1, 1, 10_000, 1));
         JSpinner bookPriceField = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000.0, 0.01));
-        DatePicker bookDatePicker = new DatePicker();
+        DatePicker bookDatePicker = createAndSetUpDatePicker();
+        bookDatePicker.getSettings().setVetoPolicy(date -> date.isBefore(LocalDate.now()) || date.isEqual(LocalDate.now()));
         JPanel mainInfoPanel = createBookMainInfoPanel(bookNameField, booksCountField, bookPriceField, bookDatePicker);
         bookMainPanel.add(mainInfoPanel);
         tabMainPanel.add(bookMainPanel, BorderLayout.NORTH);
@@ -225,11 +229,18 @@ public class MainFrame extends JFrame {
         JPanel authorPanel = new JPanel();
         authorPanel.setBorder(BorderFactory.createTitledBorder("Author info"));
 
-        JTextField name, email;
-        JComboBox<Author.Gender> gender;
-        authorPanel.add(createPanel(new JLabel("Name:"), name = new JTextField(20)));
-        authorPanel.add(createPanel(new JLabel("Gender:"), gender = new JComboBox<>(Author.Gender.values())));
-        authorPanel.add(createPanel(new JLabel("E-mail:"), email = new JTextField(15)));
+        JTextField name = new JTextField(20);
+        name.setInputVerifier(new InputVerifiers.AuthorNameVerifier());
+
+        JTextField email = new JTextField(15);
+        email.setInputVerifier(new InputVerifiers.AuthorEmailVerifier());
+
+        JComboBox<Author.Gender> gender = new JComboBox<>(Author.Gender.values());
+
+        authorPanel.add(createPanel(new JLabel("Name:"), name));
+        authorPanel.add(createPanel(new JLabel("Gender:"), gender));
+        authorPanel.add(createPanel(new JLabel("E-mail:"), email));
+
 
         List<JComponent> fields = new ArrayList<>();
         fields.add(name);
@@ -243,27 +254,32 @@ public class MainFrame extends JFrame {
     private JPanel createButtonsPanelForAddingTab(JTextField bookNameField, JSpinner booksCountField, JSpinner bookPriceField,
                                                   JPanel authorsPanel, List<List<JComponent>> authorsFields, DatePicker bookDatePicker) {
         JPanel buttonsPanel = new JPanel();
-        buttonsPanel.add(createButton("Add book", (event) -> {
+
+        JButton addBookButton = new JButton("Add book");
+        addBookButton.addActionListener(event -> {
+            if (!addBookButton.requestFocusInWindow()) {
+                return;
+            }
             Author[] authors = parseAuthorsInfo(authorsFields);
 
             Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
                                  (int) booksCountField.getValue(), bookDatePicker.getDate());
             bookModel.addBook(book);
-        }));
+        });
 
-        buttonsPanel.add(createButton("Add author", (event) -> {
+        buttonsPanel.add(createButton("Add author", event -> {
             authorsPanel.add(createAuthorPanel(authorsFields));
             validate();
         }));
 
-        buttonsPanel.add(createButton("Remove last author", (event) -> {
+        buttonsPanel.add(createButton("Remove last author", event -> {
             removeLastAuthorPanelAndFields(authorsPanel, authorsFields);
             validate();
         }));
 
-        buttonsPanel.add(createButton("Clear fields",
-                                      (event) -> clearAllFields(bookNameField, booksCountField, bookPriceField, authorsFields,
-                                                                bookDatePicker)));
+        buttonsPanel.add(createButton("Reset fields",
+                                      event -> clearAllFields(bookNameField, booksCountField, bookPriceField,
+                                                              authorsFields, bookDatePicker)));
 
         return buttonsPanel;
     }
@@ -272,7 +288,12 @@ public class MainFrame extends JFrame {
                                                    JSpinner bookPriceField, JPanel authorsPanel, List<List<JComponent>> authorsFields,
                                                    DatePicker bookDatePicker) {
         JPanel buttonsPanel = new JPanel();
-        buttonsPanel.add(createButton("Apply changes", (event) -> {
+
+        JButton applyButton = new JButton("Apply changes");
+        applyButton.addActionListener(event -> {
+            if (!applyButton.requestFocusInWindow()) {
+                return;
+            }
             int selectedIndex = bookSearchBox.getSelectedIndex();
             if (selectedIndex == -1) {
                 return;
@@ -286,7 +307,7 @@ public class MainFrame extends JFrame {
             selectedBook.setDate(bookDatePicker.getDate());
 
             bookModel.dataChanged();
-        }));
+        });
 
         buttonsPanel.add(createButton("Add author", (event) -> {
             authorsPanel.add(createAuthorPanel(authorsFields));
@@ -341,7 +362,7 @@ public class MainFrame extends JFrame {
         bookNameField.setText(defaultText);
         booksCountField.setValue(defaultCount);
         bookPriceField.setValue(defaultPrice);
-        bookDatePicker.clear();
+        bookDatePicker.setDate(LocalDate.now());
 
         for (List<JComponent> compsList : authorsFields) {
             ((JTextField) compsList.get(0)).setText(defaultText);
@@ -365,13 +386,6 @@ public class MainFrame extends JFrame {
         }
 
         return panel;
-    }
-
-    private JButton createButton(String title, ActionListener al) {
-        JButton btn = new JButton(title);
-        btn.addActionListener(al);
-
-        return btn;
     }
 
     private JPanel createBookSearchPanelWithAutocomplete(JComboBox bookSearchBox) {
@@ -423,13 +437,28 @@ public class MainFrame extends JFrame {
         });
     }
 
+    private JButton createButton(String title, ActionListener al) {
+        JButton btn = new JButton(title);
+        btn.addActionListener(al);
+
+        return btn;
+    }
+
     private JScrollPane createBookTable() {
         JTable bookTable = new JTable(bookModel);
 
         return new JScrollPane(bookTable);
     }
 
+    private DatePicker createAndSetUpDatePicker() {
+        DatePicker bookDatePicker = new DatePicker();
+        DatePickerSettings settings = bookDatePicker.getSettings();
+        settings.setVetoPolicy(date -> date.isBefore(LocalDate.now()) || date.isEqual(LocalDate.now()));
+        settings.setAllowEmptyDates(false);
+        bookDatePicker.setDate(LocalDate.now());
 
+        return bookDatePicker;
+    }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MainFrame::new);
     }
