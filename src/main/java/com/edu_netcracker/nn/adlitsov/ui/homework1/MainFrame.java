@@ -295,14 +295,12 @@ public class MainFrame extends JFrame {
                     return;
                 }
 
-                Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
-                selectedBook.setName(bookNameField.getText());
-                selectedBook.setPrice((double) bookPriceField.getValue());
-                selectedBook.setQty((int) booksCountField.getValue());
-                selectedBook.setAuthors(parseAuthorsInfo(authorsFields));
-                selectedBook.setDate(bookDatePicker.getDate());
 
-                bookModel.dataChanged();
+                Book selectedBooks = bookSearchBox.getItemAt(selectedIndex);
+                Author[] authors = parseAuthorsInfo(authorsFields);
+
+                bookModel.modifyBooks(selectedBooks, bookNameField.getText(), authors, (double) bookPriceField.getValue(),
+                                      (int) booksCountField.getValue(), bookDatePicker.getDate());
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Incorrect book data!");

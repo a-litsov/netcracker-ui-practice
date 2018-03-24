@@ -49,7 +49,36 @@ public class BookModel extends AbstractTableModel {
         }
     }
 
-    public void dataChanged() {
+
+    public void modifyBooks(Book oldBook, String name, Author[] authors, double price, int count, LocalDate date) {
+        // do nothing, if oldBook is not found
+        int oldIndex = books.indexOf(oldBook);
+        if (oldIndex == -1) {
+            return;
+        }
+
+        // search for equal books
+        Book newBook = new Book(name, authors, price, count, date);
+        int newIndex = books.indexOf(newBook);
+        if (newIndex != -1) {
+            Book foundBook = books.get(newIndex);
+
+            // newBook is found: if it's not oldBook, then add newBook qty to found book and remove oldBook,
+            // else just update qty
+            if (newIndex != oldIndex) {
+                oldBook.setQty(foundBook.getQty() + newBook.getQty());
+                books.remove(newIndex);
+            } else {
+                oldBook.setQty(newBook.getQty());
+            }
+        }
+
+        // modify properties of oldBook except qty
+        oldBook.setName(name);
+        oldBook.setAuthors(authors);
+        oldBook.setPrice(price);
+        oldBook.setDate(date);
+
         fireTableDataChanged();
     }
 
@@ -69,7 +98,23 @@ public class BookModel extends AbstractTableModel {
             ObjectReader reader = mapper.readerForUpdating(books);
             reader.forType(new TypeReference<BasicEventList<Book>>() {
             }).readValue(file);
-            dataChanged();
+
+            // All equal books are grouped and their counts are summed
+            Book currentBook, otherBook;
+            for (int i = 0; i < books.size(); i++) {
+                int j = i + 1;
+                while (j < books.size()) {
+                    currentBook = books.get(i);
+                    otherBook = books.get(j);
+                    if (currentBook.equals(otherBook)) {
+                        currentBook.setQty(currentBook.getQty() + otherBook.getQty());
+                        books.remove(j);
+                    } else {
+                        j++;
+                    }
+                }
+            }
+            fireTableDataChanged();
 
             return true;
         } catch (Exception ex) {
