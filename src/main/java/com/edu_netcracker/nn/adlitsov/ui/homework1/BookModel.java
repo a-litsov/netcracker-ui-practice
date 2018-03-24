@@ -172,7 +172,7 @@ public class BookModel extends AbstractTableModel {
             case 1:
                 return "Authors";
             case 2:
-                return "Price";
+                return "Price($)";
             case 3:
                 return "Count";
             case 4:
