@@ -23,7 +23,10 @@ public class Book {
         validatePrice(price);
 
         this.name = name;
+
         this.authors = Arrays.copyOf(authors, authors.length);
+        Arrays.sort(this.authors);
+
         this.price = price;
     }
 
@@ -96,6 +99,7 @@ public class Book {
         validateAuthors(authors);
 
         this.authors = Arrays.copyOf(authors, authors.length);
+        Arrays.sort(this.authors);
     }
 
     public double getPrice() {
