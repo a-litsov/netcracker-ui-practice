@@ -1,6 +1,8 @@
 package com.edu_netcracker.nn.adlitsov.ui.homework1;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -12,10 +14,6 @@ public class Book {
     private double price;
     private int qty = 1;
     private LocalDate date;
-
-    public Book() {
-
-    }
 
     public Book(String name, Author[] authors, double price) {
         validateName(name);
@@ -37,7 +35,9 @@ public class Book {
         this.qty = qty;
     }
 
-    public Book(String name, Author[] authors, double price, int qty, LocalDate date) {
+    @JsonCreator
+    public Book(@JsonProperty("name") String name, @JsonProperty("authors") Author[] authors, @JsonProperty("price") double price,
+                @JsonProperty("qty") int qty, @JsonProperty("date") LocalDate date) {
         this(name, authors, price, qty);
 
         this.date = date;
