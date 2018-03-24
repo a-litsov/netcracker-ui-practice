@@ -1,0 +1,139 @@
+[
+  {
+    "name": "Introduction to Algorithms",
+    "authors": [
+      {
+        "name": "Charles E. Leiserson",
+        "email": "leiserson@gmail.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "Clifford Stein",
+        "email": "stein@gmail.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "Ronald Rivest",
+        "email": "rivest@gmail.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "Thomas H. Cormen",
+        "email": "cormen@gmail.com",
+        "gender": "MALE"
+      }
+    ],
+    "price": 150.0,
+    "qty": 2000,
+    "date": [
+      1989,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "The Pragmatic Programmer",
+    "authors": [
+      {
+        "name": "Andy Hunt",
+        "email": "andy.hunt@williams.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "Dave Thomas",
+        "email": "dave.thomas@gmail.com",
+        "gender": "MALE"
+      }
+    ],
+    "price": 120.0,
+    "qty": 600,
+    "date": [
+      1999,
+      10,
+      1
+    ]
+  },
+  {
+    "name": "Code Complete",
+    "authors": [
+      {
+        "name": "Steve McConnell",
+        "email": "steve.mcconnell@gmail.com",
+        "gender": "MALE"
+      }
+    ],
+    "price": 130.0,
+    "qty": 460,
+    "date": [
+      1993,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "The Art of Computer Programming",
+    "authors": [
+      {
+        "name": "Donald Knuth",
+        "email": "donald.knuth@mail.co.uk",
+        "gender": "MALE"
+      }
+    ],
+    "price": 130.0,
+    "qty": 1000,
+    "date": [
+      1968,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "Clean Code",
+    "authors": [
+      {
+        "name": "Robert Cecil Martin",
+        "email": "rob.marting@yahoo.com",
+        "gender": "MALE"
+      }
+    ],
+    "price": 175.0,
+    "qty": 5000,
+    "date": [
+      2008,
+      7,
+      17
+    ]
+  },
+  {
+    "name": "Design Patterns: Elements of Reusable Object-Oriented Software",
+    "authors": [
+      {
+        "name": "Erich Gamma",
+        "email": "e.gamma@gfour.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "John Vlissides",
+        "email": "vlissides.john@gfour.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "Ralph Johnson",
+        "email": "r.johnson18@yahoo.com",
+        "gender": "MALE"
+      },
+      {
+        "name": "Richard Helm",
+        "email": "r.helm@mail.co.uk",
+        "gender": "MALE"
+      }
+    ],
+    "price": 150.0,
+    "qty": 3200,
+    "date": [
+      1994,
+      10,
+      21
+    ]
+  }
+]
