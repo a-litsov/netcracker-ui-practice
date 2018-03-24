@@ -5,13 +5,10 @@ import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,21 +22,18 @@ public class MainFrame extends JFrame {
 
     public MainFrame() {
         super("Book Storage");
-        setSize(WIDTH, HEIGHT);
 
+        setSize(WIDTH, HEIGHT);
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
         final int screenWidth = screenSize.width;
         final int screenHeight = screenSize.height;
         setLocation((screenWidth - WIDTH) / 2, (screenHeight - HEIGHT) / 2);
-
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
         setLayout(new BorderLayout());
 
         createMenuBar();
         createSplitPane();
-
 
         setVisible(true);
     }
@@ -48,59 +42,20 @@ public class MainFrame extends JFrame {
         JMenuBar menuBar;
         JMenu fileMenu;
         JMenuItem openMenuItem, saveMenuItem;
-
         menuBar = new JMenuBar();
-
         fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
 
         openMenuItem = new JMenuItem("Open");
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-
-        openMenuItem.addActionListener(event -> {
-            JFileChooser fc = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "JSON files", "json");
-            fc.setFileFilter(filter);
-            fc.setAcceptAllFileFilterUsed(false);
-
-            int returnVal = fc.showOpenDialog(this);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-
-                if (!bookModel.loadBooks(file)) {
-                    JOptionPane.showMessageDialog(this, "Error occurred while books loading!");
-                }
-            }
-        });
-
+        openMenuItem.addActionListener(new ActionListeners.OpenListener(bookModel));
         fileMenu.add(openMenuItem);
 
         saveMenuItem = new JMenuItem("Save");
         saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-
-        saveMenuItem.addActionListener(event -> {
-            JFileChooser fc = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "JSON files", "json");
-            fc.setFileFilter(filter);
-            fc.setAcceptAllFileFilterUsed(false);
-
-            int returnVal = fc.showSaveDialog(this);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                String fileName = fc.getSelectedFile().getAbsolutePath();
-                String fileNameWithOutExt = fileName.replaceFirst("[.][^.]+$", "");
-                File file = new File(fileNameWithOutExt + "." + filter.getExtensions()[0]);
-
-                bookModel.saveBooks(file);
-            }
-        });
-
+        saveMenuItem.addActionListener(new ActionListeners.SaveListener(bookModel));
         fileMenu.add(saveMenuItem);
-
-        setJMenuBar(menuBar);
     }
 
 
@@ -175,8 +130,9 @@ public class MainFrame extends JFrame {
         tabMainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         // Action when book is selected
-        createBookSearchBoxListener(bookSearchBox, bookNameField, booksCountField, bookPriceField, authorsFields, authorsPanel,
-                                    bookDatePicker);
+        bookSearchBox.addItemListener(new ActionListeners.SearchBoxListener(bookSearchBox, bookNameField, booksCountField,
+                                                                            bookPriceField, authorsFields, authorsPanel,
+                                                                            bookDatePicker, this));
 
         return tabMainPanel;
     }
@@ -219,7 +175,7 @@ public class MainFrame extends JFrame {
     /*
      * Receives list and populates it with new author panel data fields
      */
-    private JPanel createAuthorPanel(List<List<JComponent>> authorsFields) {
+    public JPanel createAuthorPanel(List<List<JComponent>> authorsFields) {
         JPanel authorPanel = new JPanel();
         authorPanel.setBorder(BorderFactory.createTitledBorder("Author info"));
 
@@ -372,7 +328,7 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void removeLastAuthorPanelAndFields(JPanel authorsPanel, List<List<JComponent>> authorsFields) {
+    public void removeLastAuthorPanelAndFields(JPanel authorsPanel, List<List<JComponent>> authorsFields) {
         int authorsCount = authorsPanel.getComponentCount();
         if (authorsCount > 1) {
             authorsPanel.remove(authorsCount - 1);
@@ -401,43 +357,6 @@ public class MainFrame extends JFrame {
         return bookSearchPanel;
     }
 
-    private void createBookSearchBoxListener(JComboBox<Book> bookSearchBox, JTextField bookNameField, JSpinner booksCountField,
-                                             JSpinner bookPriceField, List<List<JComponent>> authorsFields, JPanel authorsPanel,
-                                             DatePicker bookDatePicker) {
-        bookSearchBox.addItemListener((event) -> {
-            if (event.getStateChange() != ItemEvent.SELECTED) {
-                return;
-            }
-
-            int selectedIndex = bookSearchBox.getSelectedIndex();
-            if (selectedIndex == -1) {
-                return;
-            }
-            Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
-            bookNameField.setText(selectedBook.getName());
-            booksCountField.setValue(selectedBook.getQty());
-            bookPriceField.setValue(selectedBook.getPrice());
-            bookDatePicker.setDate(selectedBook.getDate());
-
-            Author[] authors = selectedBook.getAuthors();
-            for (int i = 0; i < authors.length; i++) {
-                if (i >= authorsFields.size()) {
-                    authorsPanel.add(createAuthorPanel(authorsFields));
-                }
-                List<JComponent> curAuthorField = authorsFields.get(i);
-                ((JTextField) curAuthorField.get(0)).setText(authors[i].getName());
-                ((JComboBox<Author.Gender>) curAuthorField.get(1)).setSelectedItem(authors[i].getGender());
-                ((JTextField) curAuthorField.get(2)).setText(authors[i].getEmail());
-            }
-
-            int unusedAuthorFields = authorsFields.size() - authors.length;
-            for (int i = 0; i < unusedAuthorFields; i++) {
-                removeLastAuthorPanelAndFields(authorsPanel, authorsFields);
-            }
-            validate();
-        });
-    }
-
     private JButton createButton(String title, ActionListener al) {
         JButton btn = new JButton(title);
         btn.addActionListener(al);
@@ -460,6 +379,7 @@ public class MainFrame extends JFrame {
 
         return bookDatePicker;
     }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MainFrame::new);
     }
