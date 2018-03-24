@@ -256,7 +256,7 @@ public class MainFrame extends JFrame {
 
                 Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
                                      (int) booksCountField.getValue(), bookDatePicker.getDate());
-                bookModel.addBook(book);
+                bookModel.addBooks(book);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Incorrect book data!");
@@ -321,14 +321,16 @@ public class MainFrame extends JFrame {
         }));
 
         buttonsPanel.add(createButton("Remove books", (event) -> {
-            int selectedIndex = bookSearchBox.getSelectedIndex();
-            if (selectedIndex == -1) {
-                return;
-            }
+            try {
+                Author[] authors = parseAuthorsInfo(authorsFields);
 
-            Book selectedBook = bookSearchBox.getItemAt(selectedIndex);
-            int removeQty = (int) booksCountField.getValue();
-            bookModel.removeBooks(selectedIndex, removeQty);
+                Book book = new Book(bookNameField.getText(), authors, (double) bookPriceField.getValue(),
+                                     (int) booksCountField.getValue(), bookDatePicker.getDate());
+
+                bookModel.removeBooks(book);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, "Incorrect book data!");
+            }
         }));
 
         buttonsPanel.add(createButton("Clear fields", (event) -> {

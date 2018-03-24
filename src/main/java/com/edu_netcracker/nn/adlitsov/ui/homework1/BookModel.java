@@ -16,14 +16,37 @@ public class BookModel extends AbstractTableModel {
     private EventList<Book> books = new BasicEventList<>();
 
 
-    public void addBook(Book b) {
-        books.add(b);
+    public void addBooks(Book newBook) {
+        int index = books.indexOf(newBook);
+        if (index == -1) {
+            books.add(newBook);
+        } else {
+            Book existingBook = books.get(index);
+            existingBook.setQty(existingBook.getQty() + newBook.getQty());
+        }
+
         fireTableDataChanged();
     }
 
-    public void removeBook(Book b) {
-        books.remove(b);
-        fireTableDataChanged();
+    public void removeBooks(Book bookToRemove) {
+        int index = books.indexOf(bookToRemove);
+        if (index != -1) {
+            Book existingBook = books.get(index);
+            int currentQty = existingBook.getQty();
+            int removeQty = bookToRemove.getQty();
+
+            if (currentQty < removeQty) {
+                throw new IllegalArgumentException("Cannot remove more books than have");
+            }
+
+            if (currentQty == removeQty) {
+                books.remove(index);
+            } else {
+                existingBook.setQty(currentQty - removeQty);
+            }
+
+            fireTableDataChanged();
+        }
     }
 
     public void dataChanged() {
