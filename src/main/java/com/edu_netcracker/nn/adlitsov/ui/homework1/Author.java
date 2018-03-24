@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
-public class Author {
+public class Author implements Comparable<Author> {
 
     public enum Gender {
         MALE, FEMALE
@@ -69,6 +69,11 @@ public class Author {
                 ", email='" + email + '\'' +
                 ", gender='" + gender + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Author other) {
+        return name.compareTo(other.name);
     }
 
     @Override
