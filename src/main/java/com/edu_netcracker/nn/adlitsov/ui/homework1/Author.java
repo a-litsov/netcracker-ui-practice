@@ -15,10 +15,6 @@ public class Author implements Comparable<Author> {
     private String email;
     private Gender gender;
 
-    public Author() {
-
-    }
-
     @JsonCreator
     public Author(@JsonProperty("name") String name, @JsonProperty("email") String email, @JsonProperty("gender") Gender gender) {
         validateName(name);
